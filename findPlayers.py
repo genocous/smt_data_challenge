@@ -2,10 +2,10 @@ import pandas as pd
 import csv
 import os
 
-#Finds all unique players (by ID) and puts them into table with format: player_id, level, SS?, CF?, Year
-#The same player may have different entries at different levels and/or different years
-#SS and CF bools will all be false for now
-#Level: 4 = AAA, 3 = AA, 2 = A+, 1 = A-
+# Finds all unique players (by ID) and puts them into table with format: player_id, level, SS?, CF?, Year
+# The same player may have different entries at different levels and/or different years
+# SS and CF bools will all be false for now
+# Level: 4 = AAA, 3 = AA, 2 = A+, 1 = A-
 def findUniquePlayers(file_path):
     data = {'Player_IDs': [],'Level': [],'SS': [],'CF': [], 'Year': [],}
     df = pd.DataFrame(data)
@@ -19,7 +19,7 @@ def findUniquePlayers(file_path):
             Year = row[2]
             row_to_check = {'Player_IDs': ID,'Level': Level,'SS': False,'CF': False, 'Year': Year}
             row_df = pd.DataFrame([row_to_check])
-            #Check if there is any row that satisfies all conditions
+            # Check if there is any row that satisfies all conditions
             if(not(df == row_df.iloc[0]).all(axis=1).any()):
                 new_row = {'Player_IDs': ID,'Level': Level,'SS': False,'CF': False,'Year': Year}
                 new_row_df = pd.DataFrame([new_row])
@@ -28,7 +28,7 @@ def findUniquePlayers(file_path):
     df.iloc[0, df.columns.get_loc('CF')] = False
     return(df)
 
-#fills in which players have played SS/CF
+# Fills in which players have played SS/CF
 def fillPositions(file_path, df):
     for root, dirs, files in os.walk(file_path):
         for filename in files:
@@ -62,16 +62,16 @@ def fillPositions(file_path, df):
                         
 
 def main():
-    #set file_path to your path to team_info.csv 
+    # Set file_path to your path to team_info.csv 
     file_path = "C:/Users/samdo/OneDrive/Desktop/SMT_2024/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/team_info.csv"
     df = findUniquePlayers(file_path)
 
-    #iterate through all game_info files to find players that played SS/CF
-    #set file_path to your path to the game_info folder
+    # Iterate through all game_info files to find players that played SS/CF
+    # Set file_path to your path to the game_info folder
     file_path = "C:/Users/samdo/OneDrive/Desktop/SMT_2024/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/game_info"
     fillPositions(file_path, df)
 
-    #sort table into 3 separtate tables: SS table, CF table, Both table
+    # Sort table into 3 separtate tables: SS table, CF table, Both table
     SSdata = {'Player_IDs': [],'Level': [],'Year': []}
     SSdf = pd.DataFrame(SSdata)
 
