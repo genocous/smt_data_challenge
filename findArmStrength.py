@@ -33,13 +33,23 @@ def findSSthrows():
         game_events_subset = readDataSubset('game_events', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
         game_events = game_events_subset.to_table(filter = (pads.field('Season') == "Season_1884")).to_pandas()
 
-    SScatchesGrounders = game_events[(game_events['event_code'] == 2) & (game_events['player_position'] == 3)
+    FirstBasecatches = game_events[(game_events['event_code'] == 2) & (game_events['player_position'] == 3)
                                      & (game_events.event_code.shift(1) == 3) & (game_events['player_position'].shift(1) == 6)]
     PlayerPlays = game_info[game_info['shortstop'] == ID]
-    PlayerCatches = pd.merge(SScatchesGrounders, PlayerPlays, on=["game_str", "at_bat", "play_per_game"], how="inner")
+    PlayerCatches = pd.merge(FirstBasecatches, PlayerPlays, on=["game_str", "at_bat", "play_per_game"], how="inner")
     PlayerCatches = PlayerCatches[["game_str", "play_id", "play_per_game"]]
-    PlayerCatches
-    print(PlayerCatches)
+    
+    SSfields = game_events[(game_events['event_code'] == 3) & (game_events['player_position'] == 6)]
+    PlayerCatchesWithTimestamps = pd.merge(PlayerCatches, SSfields, on=["game_str", "play_per_game"], how="left")
+    PlayerCatchesWithTimestamps = PlayerCatchesWithTimestamps[["game_str", "play_id_x", "play_per_game", "timestamp"]]
+    PlayerCatchesWithTimestamps = PlayerCatchesWithTimestamps.rename(columns={'timestamp':'start_time', 'play_id_x':'play_id'})
+    PlayerCatchesWithTimestamps = pd.merge(PlayerCatchesWithTimestamps, FirstBasecatches, on=["game_str", "play_per_game"], how="left")
+    PlayerCatchesWithTimestamps = PlayerCatchesWithTimestamps[["game_str", "play_id_x", "play_per_game", "start_time", "timestamp"]]
+    PlayerCatchesWithTimestamps = PlayerCatchesWithTimestamps.rename(columns={'timestamp':'end_time', 'play_id_x':'play_id'})
+    PlayerCatchesWithTimestamps['throw_time'] = (PlayerCatchesWithTimestamps['end_time'] - PlayerCatchesWithTimestamps['start_time']) / 1000
+    print(PlayerCatchesWithTimestamps)
+
+    
 
     # for index, row in SSdf.iterrows():
     #     ID = row['Player_IDs']
