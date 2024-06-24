@@ -11,27 +11,7 @@ import matplotlib.pyplot as plt
 import pyarrow.dataset as pads
 
 
-#Set file_paths to your path to the folders within the player_pos folder 
 #Uncomment the path for your local computer
-
-#file_path_1883_1 = "C:/Users/samdo/OneDrive/Desktop/SMT_2024/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1883/Home1A"
-#file_path_1883_2 = "C:/Users/samdo/OneDrive/Desktop/SMT_2024/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1883/Home2A"
-#file_path_1883_3 = "C:/Users/samdo/OneDrive/Desktop/SMT_2024/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1883/Home3A"
-#file_path_1883_4 = "C:/Users/samdo/OneDrive/Desktop/SMT_2024/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1883/Home4A"
-#file_path_1884_1 = "C:/Users/samdo/OneDrive/Desktop/SMT_2024/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1884/Home1A"
-#file_path_1884_2 = "C:/Users/samdo/OneDrive/Desktop/SMT_2024/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1884/Home2A"
-#file_path_1884_3 = "C:/Users/samdo/OneDrive/Desktop/SMT_2024/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1884/Home3A"
-#file_path_1884_4 = "C:/Users/samdo/OneDrive/Desktop/SMT_2024/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1884/Home4A"
-
-# file_path_1883_1 = "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1883/Home1A"
-# file_path_1883_2 = "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1883/Home2A"
-# file_path_1883_3 = "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1883/Home3A"
-# file_path_1883_4 = "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1883/Home4A"
-# file_path_1884_1 = "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1883/Home1A"
-# file_path_1884_2 = "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1883/Home2A"
-# file_path_1884_3 = "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1883/Home3A"
-# file_path_1884_4 = "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge/player_pos/Season_1883/Home4A"
-
 #Arm Strength only calculated for throws from SS to 1B
 def findSSthrows():
     #testing one player for now
@@ -52,9 +32,6 @@ def findSSthrows():
 
         game_events_subset = readDataSubset('game_events', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
         game_events = game_events_subset.to_table(filter = (pads.field('Season') == "Season_1884")).to_pandas()
-    
-    Player_gameinfo = game_info[game_info['shortstop'] == ID].game_str.unique()
-    print(len(Player_gameinfo))
 
     SScatchesGrounders = game_events[(game_events['event_code'] == 2) & (game_events['player_position'] == 3)
                                      & (game_events.event_code.shift(1) == 3) & (game_events['player_position'].shift(1) == 6)]
