@@ -26,12 +26,18 @@ def findSSthrows():
 
         game_events_subset = readDataSubset('game_events', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
         game_events = game_events_subset.to_table(filter = (pads.field('Season') == "Season_1883")).to_pandas()
+
+        ball_pos_subset = readDataSubset('ball_pos', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
+        ball_pos = ball_pos_subset.to_table(filter = (pads.field('Season') == "Season_1883")).to_pandas()
     else:
         game_info_subset = readDataSubset('game_info', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
         game_info = game_info_subset.to_table(filter = (pads.field('Season') == "Season_1884")).to_pandas()
 
         game_events_subset = readDataSubset('game_events', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
         game_events = game_events_subset.to_table(filter = (pads.field('Season') == "Season_1884")).to_pandas()
+
+        ball_pos_subset = readDataSubset('ball_pos', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
+        ball_pos = ball_pos_subset.to_table(filter = (pads.field('Season') == "Season_1884")).to_pandas()
 
     FirstBasecatches = game_events[(game_events['event_code'] == 2) & (game_events['player_position'] == 3)
                                      & (game_events.event_code.shift(1) == 3) & (game_events['player_position'].shift(1) == 6)]
@@ -48,7 +54,8 @@ def findSSthrows():
     PlayerCatchesWithTimestamps = PlayerCatchesWithTimestamps.rename(columns={'timestamp':'end_time', 'play_id_x':'play_id'})
     PlayerCatchesWithTimestamps['throw_time'] = (PlayerCatchesWithTimestamps['end_time'] - PlayerCatchesWithTimestamps['start_time']) / 1000
     print(PlayerCatchesWithTimestamps)
-
+    PlayerCatchesWithDistance = "Hello World!"
+    print(PlayerCatchesWithDistance)
     
 
     # for index, row in SSdf.iterrows():
