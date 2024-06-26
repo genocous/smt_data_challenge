@@ -18,7 +18,6 @@ from animation import plot_animation
 #Uncomment the path for your local computer
 #Arm Strength only calculated for throws from SS to 1B
 def findSSthrows():
-    
     SSdf = pd.read_csv('shortstops.csv')
     for index, row in SSdf.iterrows():
         print(index)
@@ -100,12 +99,6 @@ def findSSthrows():
     # hi = plot_animation(player_position_df, ball_position_df, 3, False)
     # with open("animation.html", "w") as file:
     #     file.write(hi.data)
-
-    # for index, row in SSdf.iterrows():
-    #     ID = row['Player_IDs']
-    #     year = row['Year']
-    #     level = row['Level']
-
 
 def main():
       findSSthrows()
