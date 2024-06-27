@@ -110,10 +110,10 @@ def findMaxSprintSpeed(Player_ID, file_path, game_info, game_events):
                             df['x_pos'] = df['x_pos'].astype(float)
                             df['y_pos'] = df['y_pos'].astype(float)
 
-                            # Calculate differences between points 1 second apart
-                            df['delta_x'] = df['x_pos'].diff(periods=20)
-                            df['delta_y'] = df['y_pos'].diff(periods=20)
-                            df['delta_t'] = df['timestamp'].diff(periods=20)
+                            # Calculate differences between points 2 seconds apart
+                            df['delta_x'] = df['x_pos'].diff(periods=40)
+                            df['delta_y'] = df['y_pos'].diff(periods=40)
+                            df['delta_t'] = df['timestamp'].diff(periods=40)
 
                             # Calculate the displacement (Euclidean distance) and velocity
                             df['displacement'] = np.sqrt(df['delta_x']**2 + df['delta_y']**2)
@@ -127,7 +127,7 @@ def findMaxSprintSpeed(Player_ID, file_path, game_info, game_events):
                             if(sprint_speed > max_sprint_speed):
                                 max_sprint_speed = sprint_speed
                             if(c < (len(plays) - 1)): 
-                                c = c + 1
+                                c = c + 1                          
     print(max_sprint_speed.astype(float))
     return(max_sprint_speed.astype(float))
 
