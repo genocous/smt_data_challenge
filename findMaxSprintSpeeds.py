@@ -2,13 +2,23 @@
 # Measured in ft/sec
 # For now: only from baserunning
 # Calculates velocity based on how far the player moves every 1 second in accordance with the statcast sprint speed metric (see below)
-# https://baseballsavant.mlb.com/leaderboard/sprint_speed
 # Adds results to .csv files
+
+# https://baseballsavant.mlb.com/leaderboard/sprint_speed
+# Introduced during the 2017 season, Sprint Speed is a Statcast metric that aims to more precisely quantify speed by measuring how many feet per second a player runs in his fastest one-second window.
+# In 2018, the metric was updated for hitters/runners to include the top home-to-first times as well as the previously qualified two-base runs, in an attempt to include more useful information and get to a meaningful number more quickly.
+# Currently, the metric includes "qualified runs" from these two categories:
+# • Runs of two bases or more on non-homers, excluding runs from second base when an extra-base hit happens.
+# • Home-to-first runs on "topped" or "weakly hit" balls.
+# The best of these runs, approximately two-thirds, are averaged for a player's seasonal average.
+# Any run with a Sprint Speed of at least 30 ft/sec is known as a Bolt.
 
 import pandas as pd
 import numpy as np
 import os
 import csv
+from sortedcontainers import SortedList
+import statistics
 
 file_path = ""
 game_info = ""
@@ -46,12 +56,12 @@ game_events_1884_4 = "C:/Users/samdo/OneDrive/Desktop/SMT_2024/2024_SMT_Data_Cha
 
 def findMaxSprintSpeed(Player_ID, file_path, game_info, game_events):
     plays = Conversion(findRelevantPlays(game_info, Player_ID), game_events) #finds the plays that the given player is running the bases or batting in
+    list = SortedList()
     for i in range (2, 6): #minor data fixing
         if(plays.iloc[0, i] == 1.0):
             plays.iloc[0, i] = True
         else:
             plays.iloc[0, i] = False
-    max_sprint_speed = 0
     sprint_speed = 0
     c = 0
     for root, dirs, files in os.walk(file_path):
@@ -110,10 +120,10 @@ def findMaxSprintSpeed(Player_ID, file_path, game_info, game_events):
                             df['x_pos'] = df['x_pos'].astype(float)
                             df['y_pos'] = df['y_pos'].astype(float)
 
-                            # Calculate differences between points 2 seconds apart
-                            df['delta_x'] = df['x_pos'].diff(periods=40)
-                            df['delta_y'] = df['y_pos'].diff(periods=40)
-                            df['delta_t'] = df['timestamp'].diff(periods=40)
+                            # Calculate differences between points 1 second apart
+                            df['delta_x'] = df['x_pos'].diff(periods=20)
+                            df['delta_y'] = df['y_pos'].diff(periods=20)
+                            df['delta_t'] = df['timestamp'].diff(periods=20)
 
                             # Calculate the displacement (Euclidean distance) and velocity
                             df['displacement'] = np.sqrt(df['delta_x']**2 + df['delta_y']**2)
@@ -121,15 +131,14 @@ def findMaxSprintSpeed(Player_ID, file_path, game_info, game_events):
 
                             df['displacement'] = df['displacement'].astype(float)
                             df['velocity'] = df['velocity'].astype(float)
-
-                            # Find the maximum velocity
-                            sprint_speed = df['velocity'].max()
-                            if(sprint_speed > max_sprint_speed):
-                                max_sprint_speed = sprint_speed
+                            sprint_speed = df['velocity'].max() #calculate max velocity from that play
+                            list.add(sprint_speed)
                             if(c < (len(plays) - 1)): 
-                                c = c + 1                          
-    print(max_sprint_speed.astype(float))
-    return(max_sprint_speed.astype(float))
+                                c = c + 1  
+
+    two_thirds_index = (2 * len(list)) // 3 #calculate the index for the first 2/3 of the list                    
+    print(statistics.fmean(list[:two_thirds_index]).astype(float))
+    return(statistics.fmean(list[:two_thirds_index]).astype(float))
 
 def findRelevantPlays(game_info, Player_ID):
     data = {'game_str': [], 'play_id': [], 'Batter': [],'1B': [],'2B': [], '3B': []}
@@ -144,18 +153,21 @@ def findRelevantPlays(game_info, Player_ID):
                     for row in csv_reader:
                         if(row[6] == "bottom"):
                             if(row[16] == str(Player_ID)):
+                                #only add if this ab led to a weak grounder or an xbh (non-homer)
                                 new_row = {'game_str': row[0], 'play_id': row[4], 'Batter': True,'1B': False,'2B': False, '3B': False}
                                 new_row_df = pd.DataFrame([new_row])
                                 df = pd.concat([df, new_row_df], ignore_index=True)
                             if(row[17] == str(Player_ID)):
+                                #only add if this ab led to an xbh (non-homer)
                                 new_row = {'game_str': row[0], 'play_id': row[4], 'Batter': False,'1B': True,'2B': False, '3B': False}
                                 new_row_df = pd.DataFrame([new_row])
                                 df = pd.concat([df, new_row_df], ignore_index=True)
                             if(row[18] == str(Player_ID)):
+                                #only add if this ab led to a single and runner on 2nd scored
                                 new_row = {'game_str': row[0], 'play_id': row[4], 'Batter': False,'1B': False,'2B': True, '3B': False}
                                 new_row_df = pd.DataFrame([new_row])
                                 df = pd.concat([df, new_row_df], ignore_index=True)
-                            if(row[19] == str(Player_ID)):
+                            if(row[19] == str(Player_ID)): #will not consider this situation in next iteration
                                 new_row = {'game_str': row[0], 'play_id': row[4], 'Batter': False,'1B': False,'2B': False, '3B': True}
                                 new_row_df = pd.DataFrame([new_row])
                                 df = pd.concat([df, new_row_df], ignore_index=True)
