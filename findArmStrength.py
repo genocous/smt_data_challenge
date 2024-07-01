@@ -12,18 +12,6 @@ import pyarrow.dataset as pads
 from IPython.display import display
 from queue import PriorityQueue
 
-
-# Max Heap
-class MaxHeapElement:
-    def __init__(self, x):
-        self.x = x
-
-    def __lt__(self, other):
-        return self.x > other.x
-
-    def __str__(self):
-        return str(self.x)
-
 #Courtesy of Eddie Dew's work in animation.py
 from animation import plot_animation
 
@@ -112,10 +100,10 @@ def findSSthrows():
                 maxThrowSpeed = mph
 
             if max_heap.qsize() < 5:
-                max_heap.put(MaxHeapElement(mph))
+                max_heap.put(mph)
             else:
                 max_heap.get()
-                max_heap.put(MaxHeapElement(mph))
+                max_heap.put(mph)
         
         while not max_heap.empty():
             avgThrowSpeed = avgThrowSpeed + max_heap.get()
