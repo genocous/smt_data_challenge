@@ -10,6 +10,19 @@ from SMT_data_starter import readDataSubset
 import matplotlib.pyplot as plt
 import pyarrow.dataset as pads
 from IPython.display import display
+from queue import PriorityQueue
+
+
+# Max Heap
+class MaxHeapElement:
+    def __init__(self, x):
+        self.x = x
+
+    def __lt__(self, other):
+        return self.x > other.x
+
+    def __str__(self):
+        return str(self.x)
 
 #Courtesy of Eddie Dew's work in animation.py
 from animation import plot_animation
@@ -19,8 +32,7 @@ from animation import plot_animation
 #Arm Strength only calculated for throws from SS to 1B
 def findSSthrows():
     SSdf = pd.read_csv('shortstops.csv')
-    for index, row in SSdf.iterrows():
-        print(index)
+    for index, row in SSdf.iterrows(): 
         ID = row['Player_IDs']
         year = row['Year']
         if(year == 1883):   
@@ -49,7 +61,7 @@ def findSSthrows():
         PlayerPlays = game_info[game_info['shortstop'] == ID]
         PlayerCatches = pd.merge(FirstBasecatches, PlayerPlays, on=["game_str", "at_bat", "play_per_game"], how="inner")
         PlayerCatches = PlayerCatches[["game_str", "play_id", "play_per_game"]]
-            
+
         SSfields = game_events[(game_events['event_code'] == 3) & (game_events['player_position'] == 6)]
         PlayerCatchesWithTimestamps = pd.merge(PlayerCatches, SSfields, on=["game_str", "play_per_game"], how="left")
         PlayerCatchesWithTimestamps = PlayerCatchesWithTimestamps[["game_str", "play_id_x", "play_per_game", "timestamp"]]
@@ -65,6 +77,11 @@ def findSSthrows():
         PlayerCatchesWithTimestamps['distance'] = 0
         PlayerCatchesWithTimestamps['ft/sec'] = 0
         PlayerCatchesWithTimestamps['mph'] = 0
+
+        maxThrowSpeed = 0
+        max_heap = PriorityQueue()
+        
+        avgThrowSpeed = 0
 
         pd.options.mode.chained_assignment = None
         for play in range(len(PlayerCatchesWithTimestamps)):
@@ -91,6 +108,22 @@ def findSSthrows():
                 mph = ftsec / 1.467
                 PlayerCatchesWithTimestamps['mph'].iloc[play] = mph
 
+            if mph > maxThrowSpeed:
+                maxThrowSpeed = mph
+
+            if max_heap.qsize() < 5:
+                max_heap.put(MaxHeapElement(mph))
+            else:
+                max_heap.get()
+                max_heap.put(MaxHeapElement(mph))
+        
+        while not max_heap.empty():
+            avgThrowSpeed = avgThrowSpeed + max_heap.get()
+
+        SSdf.at[index, 'Max_Throw_Speed'] = maxThrowSpeed
+        SSdf.at[index, 'Avg_Throw_Speed'] = avgThrowSpeed / 5
+        SSdf.to_csv('shortstops.csv', index=False, header=True)
+
     
     #animation check
     # player_position_df = player_position_subset.to_table(filter = (pads.field('game_str') == "1883_011_Vis4AE_Home4A")).to_pandas()
@@ -101,6 +134,9 @@ def findSSthrows():
     #     file.write(hi.data)
 
 def main():
+      SSdf = pd.read_csv('shortstops.csv')
+      SSdf["Max_Sprint_Speed"] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+      SSdf["Avg_Sprint_Speed"] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
       findSSthrows()
 
 if __name__ == "__main__":
