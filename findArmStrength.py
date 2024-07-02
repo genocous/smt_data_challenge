@@ -120,34 +120,41 @@ def findSSthrows():
             SSdf.at[index, 'Avg_Throw_Speed'] = avgThrowSpeed / size
         SSdf.to_csv('shortstops.csv', index=False, header=True)
 
-#Arm Strength only calculated for throws from CF to C
 def findCFthrows():
     CFdf = pd.read_csv('center_fielders.csv')
-    for index, row in CFdf.iterrows(): 
-        ID = row['Player_IDs']
-        year = row['Year']
-        level = row['Level']
-        result = "Home" + str(int(level)) + "A"
-        if(year == 1883):   
-            game_info_subset = readDataSubset('game_info', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
-            game_info = game_info_subset.to_table(filter = (pads.field('Season') == "Season_1883")).to_pandas()
+    row = CFdf.iloc[0]
+    ID = row['Player_IDs']
+    year = row['Year']
+    level = row['Level']
+    result = "Home" + str(int(level)) + "A"
+    if(year == 1883):   
+        game_info_subset = readDataSubset('game_info', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
+        game_info = game_info_subset.to_table(filter = (pads.field('Season') == "Season_1883")).to_pandas()
 
-            game_events_subset = readDataSubset('game_events', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
-            game_events = game_events_subset.to_table(filter = (pads.field('Season') == "Season_1883")).to_pandas()
+        game_events_subset = readDataSubset('game_events', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
+        game_events = game_events_subset.to_table(filter = (pads.field('Season') == "Season_1883")).to_pandas()
 
-            player_position_subset = readDataSubset('player_pos', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
-            player_position_CF = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1883") & (pads.field('player_position') == 8)).to_pandas()
-            player_position_C = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1883") & (pads.field('player_position') == 2)).to_pandas()
-        else:
-            game_info_subset = readDataSubset('game_info', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
-            game_info = game_info_subset.to_table(filter = (pads.field('Season') == "Season_1884")).to_pandas()
+        player_position_subset = readDataSubset('player_pos', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
+        player_position_CF = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1883") & (pads.field('player_position') == 8)).to_pandas()
+        player_position_C = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1883") & (pads.field('player_position') == 2)).to_pandas()
+    else:
+        game_info_subset = readDataSubset('game_info', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
+        game_info = game_info_subset.to_table(filter = (pads.field('Season') == "Season_1884")).to_pandas()
 
-            game_events_subset = readDataSubset('game_events', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
-            game_events = game_events_subset.to_table(filter = (pads.field('Season') == "Season_1884")).to_pandas()
+        game_events_subset = readDataSubset('game_events', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
+        game_events = game_events_subset.to_table(filter = (pads.field('Season') == "Season_1884")).to_pandas()
 
-            player_position_subset = readDataSubset('player_pos', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
-            player_position_CF = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1884") & (pads.field('player_position') == 8)).to_pandas()
-            player_position_C = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1884") & (pads.field('player_position') == 2)).to_pandas()
+        player_position_subset = readDataSubset('player_pos', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
+        player_position_CF = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1884") & (pads.field('player_position') == 8)).to_pandas()
+        player_position_C = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1884") & (pads.field('player_position') == 2)).to_pandas()
+
+    CatcherCatches = game_events[(game_events['event_code'] == 3) & (game_events['player_position'] == 8)]
+        
+    PlayerPlays = game_info[(game_info['center_field'] == ID) & (game_info['home_team'] == result)]
+    PlayerCatches = pd.merge(CatcherCatches, PlayerPlays, on=["game_str", "at_bat", "play_per_game"], how="inner")
+    PlayerCatches = PlayerCatches[["game_str", "play_id", "play_per_game"]]
+    print(PlayerCatches)
+    #for index, row in CFdf.iterrows(): 
 
 
 
