@@ -1,5 +1,5 @@
 # Find Arm Strengths of SS, SS/OF, and OF
-# Measured based on average of top 5 throws & Max Throw
+# Measured based on average of top 10 throws & Max Throw
 # Measured based on velocity of throw in mph
 
 import pandas as pd
@@ -23,6 +23,8 @@ def findSSthrows():
     for index, row in SSdf.iterrows(): 
         ID = row['Player_IDs']
         year = row['Year']
+        level = row['Level']
+        result = "Home" + str(int(level)) + "A"
         if(year == 1883):   
             game_info_subset = readDataSubset('game_info', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
             game_info = game_info_subset.to_table(filter = (pads.field('Season') == "Season_1883")).to_pandas()
@@ -46,7 +48,7 @@ def findSSthrows():
 
         FirstBasecatches = game_events[(game_events['event_code'] == 2) & (game_events['player_position'] == 3)
                                             & (game_events.event_code.shift(1) == 3) & (game_events['player_position'].shift(1) == 6)]
-        PlayerPlays = game_info[game_info['shortstop'] == ID]
+        PlayerPlays = game_info[(game_info['shortstop'] == ID) & (game_info['home_team'] == result)]
         PlayerCatches = pd.merge(FirstBasecatches, PlayerPlays, on=["game_str", "at_bat", "play_per_game"], how="inner")
         PlayerCatches = PlayerCatches[["game_str", "play_id", "play_per_game"]]
 
@@ -99,17 +101,25 @@ def findSSthrows():
             if mph > maxThrowSpeed:
                 maxThrowSpeed = mph
 
-            if max_heap.qsize() < 5:
+            if max_heap.qsize() < 10:
                 max_heap.put(mph)
             else:
-                max_heap.get()
-                max_heap.put(mph)
+                temp = max_heap.get()
+                if(mph > temp):
+                    max_heap.put(mph)
+                else:
+                    max_heap.put(temp)
         
+        size = max_heap.qsize()
+
         while not max_heap.empty():
             avgThrowSpeed = avgThrowSpeed + max_heap.get()
 
         SSdf.at[index, 'Max_Throw_Speed'] = maxThrowSpeed
-        SSdf.at[index, 'Avg_Throw_Speed'] = avgThrowSpeed / 5
+        if size == 0:
+            SSdf.at[index, 'Avg_Throw_Speed'] = 0
+        else:
+            SSdf.at[index, 'Avg_Throw_Speed'] = avgThrowSpeed / size
         SSdf.to_csv('shortstops.csv', index=False, header=True)
 
     
