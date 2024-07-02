@@ -122,7 +122,10 @@ def findSSthrows():
             SSdf.at[index, 'Avg_Throw_Speed'] = avgThrowSpeed / size
         SSdf.to_csv('shortstops.csv', index=False, header=True)
 
-    
+def findCFthrows():
+    print("Hello World!")
+
+
     #animation check
     # player_position_df = player_position_subset.to_table(filter = (pads.field('game_str') == "1883_011_Vis4AE_Home4A")).to_pandas()
     # ball_position_subset = readDataSubset('ball_pos', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
@@ -133,9 +136,13 @@ def findSSthrows():
 
 def main():
       SSdf = pd.read_csv('shortstops.csv')
+      CFdf = pd.read_csv('center_fielders.csv')
       SSdf["Max_Sprint_Speed"] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
       SSdf["Avg_Sprint_Speed"] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-      findSSthrows()
+      CFdf["Max_Sprint_Speed"] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+      CFdf["Avg_Sprint_Speed"] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+      #findSSthrows()
+      findCFthrows()
 
 if __name__ == "__main__":
     main()
