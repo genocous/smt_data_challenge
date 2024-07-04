@@ -136,7 +136,8 @@ def findCFthrows():
 
         player_position_subset = readDataSubset('player_pos', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
         player_position_CF = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1883") & (pads.field('player_position') == 8)).to_pandas()
-        player_position_C = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1883") & (pads.field('player_position') == 2)).to_pandas()
+        player_position_SS = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1883") & (pads.field('player_position') == 6)).to_pandas()
+        player_position_2B = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1883") & (pads.field('player_position') == 4)).to_pandas()
     else:
         game_info_subset = readDataSubset('game_info', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
         game_info = game_info_subset.to_table(filter = (pads.field('Season') == "Season_1884")).to_pandas()
@@ -146,14 +147,26 @@ def findCFthrows():
 
         player_position_subset = readDataSubset('player_pos', "/Users/andy/Desktop/2024_SMT_Data_Challenge/2024_SMT_Data_Challenge")
         player_position_CF = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1884") & (pads.field('player_position') == 8)).to_pandas()
-        player_position_C = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1884") & (pads.field('player_position') == 2)).to_pandas()
+        player_position_SS = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1884") & (pads.field('player_position') == 6)).to_pandas()
+        player_position_2B = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1884") & (pads.field('player_position') == 4)).to_pandas()
 
-    CatcherCatches = game_events[(game_events['event_code'] == 3) & (game_events['player_position'] == 8)]
-        
+    Catches2B = game_events[(game_events['event_code'] == 2) & (game_events['player_position'] == 4)
+                 & (game_events.event_code.shift(1) == 3) & (game_events['player_position'].shift(1) == 8)]
+    CatchesSS = game_events[(game_events['event_code'] == 2) & (game_events['player_position'] == 6)
+                & (game_events.event_code.shift(1) == 3) & (game_events['player_position'].shift(1) == 8)]
     PlayerPlays = game_info[(game_info['center_field'] == ID) & (game_info['home_team'] == result)]
-    PlayerCatches = pd.merge(CatcherCatches, PlayerPlays, on=["game_str", "at_bat", "play_per_game"], how="inner")
-    PlayerCatches = PlayerCatches[["game_str", "play_id", "play_per_game"]]
-    print(PlayerCatches)
+    throwTo2B = pd.merge(Catches2B, PlayerPlays, on=["game_str", "at_bat", "play_per_game"], how="inner")
+    throwTo2B = throwTo2B[["game_str", "play_id", "play_per_game"]]
+    throwToSS = pd.merge(CatchesSS, PlayerPlays, on=["game_str", "at_bat", "play_per_game"], how="inner")
+    throwToSS = throwToSS[["game_str", "play_id", "play_per_game"]]
+
+    CFCatches = game_events[(game_events['event_code'] == 3) & (game_events['player_position'] == 8)]
+
+
+
+
+    print(throwTo2B)
+    print(throwToSS)
     #for index, row in CFdf.iterrows(): 
 
 
