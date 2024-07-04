@@ -150,23 +150,14 @@ def findCFthrows():
         player_position_SS = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1884") & (pads.field('player_position') == 6)).to_pandas()
         player_position_2B = player_position_subset.to_table(filter = (pads.field('Season') == "Season_1884") & (pads.field('player_position') == 4)).to_pandas()
 
-    Catches2B = game_events[(game_events['event_code'] == 2) & (game_events['player_position'] == 4)
-                 & (game_events.event_code.shift(1) == 3) & (game_events['player_position'].shift(1) == 8)]
-    CatchesSS = game_events[(game_events['event_code'] == 2) & (game_events['player_position'] == 6)
-                & (game_events.event_code.shift(1) == 3) & (game_events['player_position'].shift(1) == 8)]
     PlayerPlays = game_info[(game_info['center_field'] == ID) & (game_info['home_team'] == result)]
-    throwTo2B = pd.merge(Catches2B, PlayerPlays, on=["game_str", "at_bat", "play_per_game"], how="inner")
-    throwTo2B = throwTo2B[["game_str", "play_id", "play_per_game"]]
-    throwToSS = pd.merge(CatchesSS, PlayerPlays, on=["game_str", "at_bat", "play_per_game"], how="inner")
-    throwToSS = throwToSS[["game_str", "play_id", "play_per_game"]]
-
-    CFCatches = game_events[(game_events['event_code'] == 3) & (game_events['player_position'] == 8)]
+    CFthrows = game_events[(game_events['event_code'] == 3) & (game_events['player_position'] == 8)]
+    CFthrowEvents = CFthrowEvents = pd.merge(CFthrows, PlayerPlays, on=["game_str", "at_bat", "play_per_game"], how="inner")
+    CFthrowEvents = CFthrowEvents[["game_str", "play_id", "play_per_game"]]
+    print(CFthrowEvents)
 
 
-
-
-    print(throwTo2B)
-    print(throwToSS)
+    
     #for index, row in CFdf.iterrows(): 
 
 
